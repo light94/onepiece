@@ -66,7 +66,7 @@ def main():
 		number_of_videos = str(int(number_of_videos) -1)
 		video_to_download += 1
 		with open('last_downloaded.txt','w') as f:
-			f.write(video_to_download)
+			f.write(str(video_to_download))
 		time.sleep(5)
 
 	# i = 0
