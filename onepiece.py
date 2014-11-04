@@ -1,17 +1,32 @@
 from bs4 import BeautifulSoup as Soup
 import urllib2
+import time
 
 
+video_to_download = ""
+with open('last_downloaded.txt','r') as f:
+	last_episode = f.read()
+	video_to_download = int(last_episode)+1
+number_of_videos = raw_input('How many videos to download? Type 0 for all upto recent.\n')
+number_of_videosC = number_of_videos
 
-# with open('last_downloaded.txt','r') as f:
-# 	last_episode = f.read()
-# 	video_to_download = str(int(last_episode)+1)
-
+def download(item):
+	global number_of_videosC
+	global number_of_videos
+	if number_of_videosC == "0":
+		return True
+	else:
+		return int(number_of_videos)
 
 def main():
+
+	global number_of_videosC
+	global number_of_videos
+
+	global video_to_download
 	url = "http://www.onepiece.tv/"
 	request = urllib2.Request(url,headers = {'User-Agent': 'Mozilla/5.0'})
-#	request.add_header('User-Agent' : 'Mozilla/5.0')
+
 	data = urllib2.urlopen(request).read()
 
 	soup = Soup(data)
@@ -19,8 +34,11 @@ def main():
 
 	allLinks = body.findAll('a',attrs = {'class':'movie'})
 	#allLinks = tableofepisodes.findAll('a')
-	for link in allLinks[:1]:
-		url = link['href']
+	lastUploadedUrl = allLinks[0]
+	lastVideo = int(lastUploadedUrl['href'].split('-')[3])
+	while video_to_download <=lastVideo and download(number_of_videos):
+		print "Updating your episode library"
+		url = "http://www1.watchop.com/watch/one-piece-episode-"+str(video_to_download)+"-english-subbed/"
 		print "Trying to fetch " + url
 
 		request = urllib2.Request(url,headers = {'User-Agent': 'Mozilla/5.0'})
@@ -42,9 +60,14 @@ def main():
 		print "Downloading Video"
 		video = urllib2.urlopen(request).read()
 		print "Saving Video"
-		with open('episode.mp4','wb') as f:
+		with open('Onepiece-'+str(video_to_download)+'.mp4','wb') as f:
 			f.write(video)
 		print "Done"
+		number_of_videos = str(int(number_of_videos) -1)
+		video_to_download += 1
+		with open('last_downloaded.txt','w') as f:
+			f.write(video_to_download)
+		time.sleep(5)
 
 	# i = 0
 	# download = False 
