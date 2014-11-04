@@ -19,15 +19,32 @@ def main():
 
 	allLinks = body.findAll('a',attrs = {'class':'movie'})
 	#allLinks = tableofepisodes.findAll('a')
-	for link in allLinks:
+	for link in allLinks[:1]:
 		url = link['href']
-		print "Downloading " + url
+		print "Trying to fetch " + url
 
 		request = urllib2.Request(url,headers = {'User-Agent': 'Mozilla/5.0'})
 		data = urllib2.urlopen(request).read()
+		soup2 = Soup(data)
+		script =  str(soup2.body.script.contents[0])
+		videoiframeEncoded = script.split('"')[-2]
+		videoiframeDecoded = urllib2.unquote(videoiframeEncoded)
+		soup3 = Soup(videoiframeDecoded)
+		videourl = soup3.iframe['src']
+		# print videourl
+		# print type(videourl)
+		request = urllib2.Request(videourl,headers = {'User-Agent': 'Mozilla/5.0'})
+		video = urllib2.urlopen(request).read()
+		soup4 = Soup(video)
+		finalurl =  soup4.video.source
+		print finalurl['src']
+		request = urllib2.Request(finalurl['src'],headers = {'User-Agent': 'Mozilla/5.0'})
+		print "Downloading Video"
+		video = urllib2.urlopen(request).read()
 		print "Saving Video"
-		with open('Episode.mp4','wb') as f:
-			f.write(data)
+		with open('episode.mp4','wb') as f:
+			f.write(video)
+		print "Done"
 
 	# i = 0
 	# download = False 
